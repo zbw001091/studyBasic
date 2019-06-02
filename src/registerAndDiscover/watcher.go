@@ -20,15 +20,19 @@ type watcher struct {
 func (w *watcher) Close() {
 }
 
+// micro-service discovery main function
 // Next to return the updates
+// data in etcd:  [key]=/zbw_naming/serviceName  [value]=relevant ip:port
+// return: []*naming.Update, is the [value]=relevant ip:port of [key]=/zbw_naming/serviceName
 func (w *watcher) Next() ([]*naming.Update, error) {
     // prefix is the etcd prefix/value to watch
     var Prefix = "zbw_naming"
     prefix := fmt.Sprintf("/%s/%s/", Prefix, w.re.serviceName)
 
-    // check if is initialized
+    // if it is not initialized
     if !w.isInitialized {
         // query addresses from etcd
+        // resp, is the [value]=ip:port of [key]=/zbw_naming/serviceName
         resp, err := w.client.Get(context.Background(), prefix, etcd3.WithPrefix())
         w.isInitialized = true
         if err == nil {
@@ -43,7 +47,7 @@ func (w *watcher) Next() ([]*naming.Update, error) {
             }
         }
     }
-
+	
     // generate etcd Watcher
     rch := w.client.Watch(context.Background(), prefix, etcd3.WithPrefix())
     for wresp := range rch {

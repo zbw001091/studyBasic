@@ -3,7 +3,7 @@ package registerAndDiscover
 import (
     "errors"
     "fmt"
-//    "strings"
+    "strings"
 	"time"
     etcd3 "go.etcd.io/etcd/clientv3"
     "google.golang.org/grpc/naming"
@@ -21,6 +21,7 @@ func NewResolver(serviceName string) *resolver {
 
 // Resolve to resolve the service from etcd, target is the dial address of etcd
 // target example: "http://127.0.0.1:2379,http://127.0.0.1:12379,http://127.0.0.1:22379"
+// target, is the url of etcd
 func (re *resolver) Resolve(target string) (naming.Watcher, error) {
     if re.serviceName == "" {
         return nil, errors.New("grpclb: no service name provided")
@@ -31,7 +32,8 @@ func (re *resolver) Resolve(target string) (naming.Watcher, error) {
 //        Endpoints: strings.Split(target, ","),
 //    })
     client, err := etcd3.New(etcd3.Config{
-		Endpoints:   []string{"localhost:2379"},
+//		Endpoints:   []string{"localhost:2379"},
+		Endpoints: strings.Split(target, ","),
 		DialTimeout: 5 * time.Second,
 	})
     if err != nil {

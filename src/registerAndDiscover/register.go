@@ -12,17 +12,20 @@ import (
 )
 
 // Prefix should start and end with no slash
-var Prefix = "etcd3_naming"
+var Prefix = "zbw_naming"
 var client etcd3.Client
 var serviceKey string
 
 var stopSignal = make(chan bool, 1)
 
 // Register
+// target, is the url of etcd
+// ttl, effective lifetime of one record in etcd
 func Register(name string, host string, port int, target string, interval time.Duration, ttl int) error {
+	// micro-service name resolution k/v, to be set into etcd
     serviceValue := fmt.Sprintf("%s:%d", host, port)
     serviceKey = fmt.Sprintf("/%s/%s/%s", Prefix, name, serviceValue)
-
+	
     // get endpoints for register dial address
     var err error
     client, err := etcd3.New(etcd3.Config{
@@ -31,7 +34,7 @@ func Register(name string, host string, port int, target string, interval time.D
     if err != nil {
         return fmt.Errorf("grpclb: create etcd3 client failed: %v", err)
     }
-
+	
     go func() {
         // invoke self-register with ticker
         ticker := time.NewTicker(interval)
