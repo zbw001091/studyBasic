@@ -27,7 +27,7 @@ func (iPhone ApplePhone) call() {
 	fmt.Println("I am Apple Phone, I can call you!")
 }
 
-func main() {
+func main1() {
 	var phone Phone
 	phone = new(NokiaPhone)
 	phone.call()
